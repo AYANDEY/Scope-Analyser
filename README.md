@@ -1,6 +1,6 @@
 # Scope-Analyser
 
-For Analysing .csv files of Oscilloscope(Tested for Hantek)
+For Analysing .csv files of Oscilloscope(Tested for Hantek DSO5202P)
 
 The '.csv' files must have a start like this..
 
