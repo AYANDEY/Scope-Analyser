@@ -244,9 +244,9 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
                 count_dir_bool=-1
         for j in range((len(t_list)-1)):
             dt=t_list[j+1]-t_list[j]
-            '''self.main.printf_("",",",t_list[j],",",",",pulse_bool_list[j],file=self.main.file_)
+            #self.main.printf_("",",",t_list[j],",",",",pulse_bool_list[j],file=self.main.file_)
             #self.main.printf_(dt,file=self.main.file_)
-            #self.main.printf_("",",",t_list[j+1],",",",",pulse_bool_list[j+1],file=self.main.file_)'''
+            #self.main.printf_("",",",t_list[j+1],",",",",pulse_bool_list[j+1],file=self.main.file_)
             puse_bool=pulse_bool_list[j+1]-pulse_bool_list[j]
             #self.main.printf_(dt,",",t_list[j+1],",",t_list[j],",",puse_bool,file=self.main.file_)
             dt_list.append([dt,puse_bool])
