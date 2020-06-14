@@ -574,7 +574,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     self.menu_col_dialog.ui.color_btn.setStyleSheet("background-color:"+self.default_color_list[self.all_plot_count])
                 else:
                     self.menu_col_dialog.ui.color_btn.setStyleSheet("background-color:#ffffff")
-
+    
     #########################################@INFORMATION WINDOW@##############################################
     def Open_Information_window(self):
         #MainWindow.hide()
