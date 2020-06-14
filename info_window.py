@@ -39,7 +39,7 @@ class Ui_infoWindow(QtWidgets.QWidget):
         self.tableWidget.resizeColumnsToContents()
         self.setWindowTitle("Channel Information")
         
-        #print("Offset=",self.main.popup_width_offset,self.main.popup_height_offset)
+        self.main.printf_("Offset=",self.main.popup_width_offset,self.main.popup_height_offset)
         self.rows_shown=0
         self.resize_by_func=False
         self.Each_Row_height_saved=0
@@ -50,7 +50,7 @@ class Ui_infoWindow(QtWidgets.QWidget):
     
     def resizeEvent(self,event):
         QtWidgets.QWidget.resizeEvent(self, event)
-        #print("resize")
+        self.main.printf_("resize")
         if self.shown==True and self.resize_by_func==False:
             self.tableWidget.resize(self.size().width(),self.size().height())
             self.tableWidget_Infow_size_same=True
@@ -67,7 +67,7 @@ class Ui_infoWindow(QtWidgets.QWidget):
         self.was_shown=False
         if isinstance(self.win_pos, str)==False:
             self.move(self.win_pos)
-        #print("Shown")
+        self.main.printf_("Shown")
         self.Each_Row_height_saved,self.Actual_win_height_0_row_saved,self.table_height_offset_saved=self.main.info_win_read_dimentions()
         self.closed=False
     

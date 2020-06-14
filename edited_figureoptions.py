@@ -32,7 +32,7 @@ def figure_edit(axes, parent=None):
     
     """Edit matplotlib figure options"""
     sep = (None, None)  # separator
-    print("RUNNING")
+    self.main.printf_("RUNNING")
     # Get / General
     # Cast to builtin floats as they have nicer reprs.
     xmin, xmax = map(float, axes.get_xlim())

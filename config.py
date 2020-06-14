@@ -22,8 +22,8 @@ class config(object):
             self.parse_lines_for_pos_and_datfolder(self.lines_pos)
             self.config_pos_file.close()
         except Exception:
-            #print(sys.exc_info())
-            #print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+            self.main.printf_(sys.exc_info())
+            self.main.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
             self.mainwin_pos.extend([0,"main_window_position="])
             self.infwin_pos.extend([1,"info_window_position="])
             self.mWin_pos.extend([2,"measure_window_position="])
@@ -65,6 +65,7 @@ class config(object):
         Information_Window_always_on_top=[None,False]
         Measurement_Window_always_on_top=[None,False]
         FFT_window_default_symmetric=[None,False]
+        debug_=[None,False]
         
         for i in range(len(lines)):
             if lines[i].startswith('#')==False:
@@ -117,95 +118,97 @@ class config(object):
                 if Measurement_Window_always_on_top[1]==False:
                     Measurement_Window_always_on_top=self.parse_val("Measurement_Window_always_on_top=",lines[i],i)
                 
+                if debug_[1]==False:
+                    debug_=self.parse_val("debug=",lines[i],i)
                 
                 
         if wave_volt_limit[2]:
-            #print("wave_volt_limit",wave_volt_limit)
+            self.main.printf_("wave_volt_limit",wave_volt_limit)
             self.wave_volt_limit=[wave_volt_limit[0],wave_volt_limit[1]]
         else:
             self.wave_volt_limit=None
         
         if FFT_annotation_offset[2]:
-            #print("FFT_annotation_offset",FFT_annotation_offset)
+            self.main.printf_("FFT_annotation_offset",FFT_annotation_offset)
             self.FFT_annotation_offset=[FFT_annotation_offset[0],FFT_annotation_offset[1]]
         else:
             self.FFT_annotation_offset=None
         
         if wave_plot_opacity[1]:
-           #print("wave_plot_opacity",wave_plot_opacity)
+           self.main.printf_("wave_plot_opacity",wave_plot_opacity)
            self.wave_plot_opacity=float(wave_plot_opacity[0])
         else:
             self.wave_plot_opacity=None
             
         if set_time_to_base_time[1]:
-            #print("set_time_to_base_time",set_time_to_base_time)
+            self.main.printf_("set_time_to_base_time",set_time_to_base_time)
             self.set_time_to_base_time=set_time_to_base_time[0]
         else:
             self.set_time_to_base_time=None
         
         if set_to_volt_base[1]:
-            #print("set_to_volt_base",set_to_volt_base)
+            self.main.printf_("set_to_volt_base",set_to_volt_base)
             self.set_to_volt_base=self.str2bool(set_to_volt_base[0])
         else:
             self.set_to_volt_base=None
         
         if FFT_line_opacity[1]:
-            #print("FFT_line_opacity",FFT_line_opacity)
+            self.main.printf_("FFT_line_opacity",FFT_line_opacity)
             self.FFT_line_opacity=float(FFT_line_opacity[0])
         else:
             self.FFT_line_opacity=None
             
         if FFT_zoom_multiplier[1]:
-            #print("FFT_zoom_multiplier",FFT_zoom_multiplier)
+            self.main.printf_("FFT_zoom_multiplier",FFT_zoom_multiplier)
             self.FFT_zoom_multiplier=float(FFT_zoom_multiplier[0])
         else:
             self.FFT_zoom_multiplier=None
             
         if FFT_keep_annotations[1]:
             self.FFT_keep_annotations=self.str2bool(FFT_keep_annotations[0])
-            #print("FFT_keep_annotations",self.FFT_keep_annotations)
+            self.main.printf_("FFT_keep_annotations",self.FFT_keep_annotations)
         else:
             self.FFT_keep_annotations=None
         
         if FFT_window_default_symmetric[1]:
             self.FFT_window_default_symmetric=self.str2bool(FFT_window_default_symmetric[0])
-            #print("FFT_keep_annotations",self.FFT_keep_annotations)
+            self.main.printf_("FFT_keep_annotations",self.FFT_keep_annotations)
         else:
             self.FFT_window_default_symmetric=None
         
         if FFT_Max_points_to_show[1]:
-            #print("FFT_Max_points_to_show",FFT_Max_points_to_show)
+            self.main.printf_("FFT_Max_points_to_show",FFT_Max_points_to_show)
             self.FFT_Max_points_to_show=int(FFT_Max_points_to_show[0])
         else:
             self.FFT_Max_points_to_show=None
             
         if FFT_annotation_opacity[1]:
-            #print("FFT_annotation_opacity",FFT_annotation_opacity)
+            self.main.printf_("FFT_annotation_opacity",FFT_annotation_opacity)
             self.FFT_annotation_opacity=float(FFT_annotation_opacity[0])
         else:
             self.FFT_annotation_opacity=None
         
         if Information_Window_Opacity[1]:
-            #print("Information_Window_Opacity",Information_Window_Opacity)
+            self.main.printf_("Information_Window_Opacity",Information_Window_Opacity)
             self.Information_Window_Opacity=float(Information_Window_Opacity[0])
         else:
             self.Information_Window_Opacity=None
         
         if Measurement_Window_Opacity[1]:
-            #print("Measurement_Window_Opacity",Measurement_Window_Opacity)
+            self.main.printf_("Measurement_Window_Opacity",Measurement_Window_Opacity)
             self.Measurement_Window_Opacity=float(Measurement_Window_Opacity[0])
         else:
             self.Measurement_Window_Opacity=None
         
         if zeroline_visible[1]:
-            #print("zeroline_visible",zeroline_visible)
+            self.main.printf_("zeroline_visible",zeroline_visible)
             self.zeroline_visible=self.str2bool(zeroline_visible[0])
         else:
             self.zeroline_visible=None
         
             
         if FFT_default_window[1]:
-            #print("FFT_default_window",FFT_default_window)
+            self.main.printf_("FFT_default_window",FFT_default_window)
             self.FFT_default_window=FFT_default_window[0]
         else:
             self.FFT_default_window=None
@@ -216,7 +219,7 @@ class config(object):
             self.Main_Window_always_on_top=None
             
         if Information_Window_always_on_top[1]:
-            #print("Information_Window_always_on_top",Information_Window_always_on_top)
+            self.main.printf_("Information_Window_always_on_top",Information_Window_always_on_top)
             self.Information_Window_always_on_top=self.str2bool(Information_Window_always_on_top[0])
         else:
             self.Information_Window_always_on_top=None    
@@ -225,7 +228,13 @@ class config(object):
             self.Measurement_Window_always_on_top=self.str2bool(Measurement_Window_always_on_top[0])
         else:
             self.Measurement_Window_always_on_top=None
-    
+
+        if debug_[1]:
+            self.debug_=self.str2bool(debug_[0])
+            
+        else:
+            self.debug_=None
+            
     def parse_val(self,argument_str,line,count):
         a_val=None
         found=False
@@ -284,27 +293,27 @@ class config(object):
                 if self.main.screensize[0]>infwin_pos[0] and self.main.screensize[1]>infwin_pos[1]:
                     self.main.infoWin.set_pos(infwin_pos)
             else:
-                #print("halving info")
-                #print(self.main.screensize[0]/2)
+                self.main.printf_("halving info")
+                self.main.printf_(self.main.screensize[0]/2)
                 self.main.infoWin.set_pos(np.divide(np.array(self.main.screensize,dtype=int),2))
             
             if mWin_pos!=[None,None]:
                 if self.main.screensize[0]>mWin_pos[0] and self.main.screensize[1]>mWin_pos[1]:
                     self.main.mWin.set_pos(mWin_pos)
             else:
-                #print("halving mwin")
+                self.main.printf_("halving mwin")
                 self.main.mWin.set_pos(np.divide(np.array(self.main.screensize,dtype=int),2))
             
             if mainwin_pos!=[None,None]:  
                 if self.main.screensize[0]>mainwin_pos[0] and self.main.screensize[1]>mainwin_pos[1]:
                     self.main.move(mainwin_pos[0],mainwin_pos[1])
             else:
-                #print("halving main")
+                self.main.printf_("halving main")
                 self.main.move(int(self.main.screensize[0]/2),int(self.main.screensize[1]/2))
                 
         except Exception:
-            #print(sys.exc_info())
-            #print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+            self.main.printf_(sys.exc_info())
+            self.main.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
             self.main.infoWin.set_pos([int(self.main.screensize[0]/2),int(self.main.screensize[1]/2)])
             self.main.mWin.set_pos([int(self.main.screensize[0]/2),int(self.main.screensize[1]/2)])
             self.main.move(int(self.main.screensize[0]/2),int(self.main.screensize[1]/2))
@@ -314,7 +323,7 @@ class config(object):
         mWin_pos=self.main.mWin.get_pos()
         
         self.csv_dir[0]=self.main.last_folder
-        print("self.csv_dir",self.csv_dir,self.main.last_folder)
+        self.main.printf_("self.csv_dir",self.csv_dir,self.main.last_folder)
         self.mainwin_pos[0]=self.main.pos().x()
         self.mainwin_pos[1]=self.main.pos().y()
         if infwin_pos!=(0,0):
@@ -323,7 +332,7 @@ class config(object):
         if mWin_pos!=(0,0):
             self.mWin_pos[0]=mWin_pos[0]
             self.mWin_pos[1]=mWin_pos[1]
-        print("SAVE:","self.mainwin_pos",self.mainwin_pos,"self.infwin_pos",self.infwin_pos,"self.csv_dir",self.csv_dir)
+        self.main.printf_("SAVE:","self.mainwin_pos",self.mainwin_pos,"self.infwin_pos",self.infwin_pos,"self.csv_dir",self.csv_dir)
         self.pos.extend([self.mainwin_pos,self.infwin_pos,self.mWin_pos,self.csv_dir])
         self.write_config()
 
@@ -369,6 +378,7 @@ class config(object):
         self.Main_Window_always_on_top=[None,False]
         self.Information_Window_always_on_top=[None,False]
         self.Measurement_Window_always_on_top=[None,False]
+        self.debug_=[None,False]
         
     def pos_init(self):
         self.mainwin_pos=[None,None,False]

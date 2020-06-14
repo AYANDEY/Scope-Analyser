@@ -177,7 +177,7 @@ class NavigationToolbar_(NavigationToolbar2, QtWidgets.QToolBar):
         if self.coordinates:
             '''try:
                 st=s.split('y')
-                #print(st)
+                self.main.printf_(st)
                 st[0]=st[0].rstrip(' ')
                 s1=st[0].replace('x=','freq=')+ ' Hz '
                 st[1]="y"+st[1].rstrip(" ")

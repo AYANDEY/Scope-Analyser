@@ -60,7 +60,7 @@ class exmain(object):
         self.tE_pos=[x_pos,y_pos]
         self.tE_dat=self.main.px2pt.transform((t_pos,0))[0]
         
-        ##print("TE_pos=",self.tE_pos)
+        self.main.printf_("TE_pos=",self.tE_pos)
         
     def draw_cursor_vS(self,v_pos,visible):
         x_pos=self.xlim_px[0]
@@ -76,7 +76,7 @@ class exmain(object):
             self.Cursor_v_boxS.hide()
         self.vS_pos=[x_pos,v_pos]
         self.vS_dat=self.main.px2pt.transform((0,v_pos))[1]
-        ##print("VS_pos=",self.vS_dat)
+        self.main.printf_("VS_pos=",self.vS_dat)
         
     def draw_cursor_vE(self,v_pos,visible):
         x_pos=self.xlim_px[0]
@@ -93,7 +93,7 @@ class exmain(object):
         
         self.vE_pos=[x_pos,v_pos]
         self.vE_dat=self.main.px2pt.transform((0,v_pos))[1]
-        ##print("VE_pos=",self.vE_pos)
+        self.main.printf_("VE_pos=",self.vE_pos)
     
     def hide_cursors(self):
         self.Cursor_t_boxS.hide()
@@ -111,13 +111,13 @@ class exmain(object):
     
     def on_pick(self,event):
         if self.picked_==False:
-            #print("ON_pick")
+            self.main.printf_("ON_pick")
             self.line = event.artist
             ch_indx=-1
             for members in self.main.ch_name_col_list:
                 ch_indx+=1
                 if members[0]==self.line.get_label():
-                    #print("Picked:",members[0])
+                    self.main.printf_("Picked:",members[0])
                     break
             self.ch_indx=ch_indx
             if ch_indx !=-1:
@@ -234,13 +234,13 @@ class exmain(object):
                     pass
         
     def CH_move_combo_change(self):
-        #print("run")
+        self.main.printf_("run")
         zorders=[]
         for ax in self.main.axes_list:
             zorders.append(ax.get_zorder())
-            #print(ax.get_zorder())
+            self.main.printf_(ax.get_zorder())
         z_max=max(zorders)
-        #print("z_max",z_max)
+        self.main.printf_("z_max",z_max)
         ind=self.main.CH_move_combo.currentIndex()
         self.main.axes_list[ind].set_zorder(z_max+1)
         self.main.canvas.draw_idle()
@@ -256,7 +256,7 @@ class exmain(object):
     
     '''
     def redraw_plot_blit(self,x_scale,y_scale,axes,artist):
-        #print("Trying blit")
+        self.main.printf_("Trying blit")
         artist.set_animated(True)
         artist.set_visible(False)
         
@@ -364,17 +364,17 @@ class exmain(object):
         if Cursor_Type_Indx==0 or Cursor_Type_Indx==2:
             if abs(x-self.tS_pos[0])<self.t_offset[0] and  abs(y-self.tS_pos[1])<self.t_offset[1]:
                 self.cursor_picked=1
-                #print("TS picked")
+                self.main.printf_("TS picked")
             elif abs(x-self.tE_pos[0])<self.t_offset[0] and abs(y-self.tE_pos[1])<self.t_offset[1]:
                 self.cursor_picked=2
-                #print("TE picked")
+                self.main.printf_("TE picked")
         elif Cursor_Type_Indx==1 or Cursor_Type_Indx==2:
             if abs(x-self.vS_pos[0])<self.v_offset[0] and abs(y-self.vS_pos[1])<self.v_offset[1]:
                 self.cursor_picked=3
-                #print("VS picked")
+                self.main.printf_("VS picked")
             elif abs(x-self.vE_pos[0])<self.v_offset[0] and abs(y-self.vE_pos[1])<self.v_offset[1]:
                 self.cursor_picked=4
-                #print("VE picked")
+                self.main.printf_("VE picked")
         if self.cursor_picked>0:
             self.MouseMotion_Event_handler=self.main.canvas.mpl_connect('motion_notify_event', self.onMouseMotion)
             self.MouseRelease_Event_handler=self.main.canvas.mpl_connect('button_release_event', self.onMouseRelease)
@@ -589,7 +589,7 @@ class exmain(object):
                 self.set_cursor_values(2,5)
     
     def CH_cursor_combo_change(self):
-        #print("CH_cursor_combo_change")
+        self.main.printf_("CH_cursor_combo_change")
         curr_plot_indx=self.main.CH_cursor_combo.currentIndex()
         col=QtGui.QColor(self.main.ch_name_col_list[curr_plot_indx][1])
         col.setAlpha(160)
@@ -684,5 +684,5 @@ class exmain(object):
     def show_about(self):
         self.aboutwin.activateWindow()
         self.aboutwin.show()
-        print("show_about")
+        self.main.printf_("show_about")
         

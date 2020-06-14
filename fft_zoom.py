@@ -121,11 +121,11 @@ class fft_zoom_(QtWidgets.QWidget):
             self.fft_widget_.ZoomsetDrawRect(e.xdata,e.ydata,freq_per_div,y_per_div)
             if self.prev_back:
                 chist_indx=len(self.zoom_history_list)-self.zoom_history_index+1
-                #print("popST",chist_indx,"ZHI:",self.zoom_history_index)
+                self.fft_widget_.main.printf_("popST",chist_indx,"ZHI:",self.zoom_history_index)
                 for i in range(chist_indx,len(self.zoom_history_list)):
                     self.zoom_history_list.pop(chist_indx)
                     
-                #print("AFT_del:",self.zoom_history_list)
+                self.fft_widget_.main.printf_("AFT_del:",self.zoom_history_list)
             self.zoom_history_index=1
             self.zoom_history_list.append([e.xdata,e.ydata,freq_per_div,y_per_div])
             self.prev_back=False
@@ -133,11 +133,11 @@ class fft_zoom_(QtWidgets.QWidget):
         
         elif self.ctrl==True and self.rightclick==True:####IF ctrl+rightclick on plot zoomback history
             self.zoom_history_index+=1
-            #print("INDX",self.zoom_history_index)
+            self.fft_widget_.main.printf_("INDX",self.zoom_history_index)
             hist_indx=len(self.zoom_history_list)-self.zoom_history_index
             if hist_indx>=0:
                 e.xdata,e.ydata,freq_per_div,y_per_div=self.zoom_history_list[hist_indx]
-                #print("showing:",self.zoom_history_list[hist_indx])
+                self.fft_widget_.main.printf_("showing:",self.zoom_history_list[hist_indx])
                 self.show_plot(e.xdata,e.ydata,freq_per_div,y_per_div)
                 self.fft_widget_.ZoomsetDrawRect(e.xdata,e.ydata,freq_per_div,y_per_div)###zoom area rectangle updated 
                 self.prev_back=True
@@ -162,7 +162,7 @@ class fft_zoom_(QtWidgets.QWidget):
         
     def showEvent(self, event):
         self.shown=True
-        ##print("SHOWN_____zoom")
+        self.fft_widget_.main.printf_("SHOWN_____zoom")
         QtWidgets.QWidget.showEvent(self, event)
     
     def closeEvent(self,e):
@@ -238,7 +238,7 @@ class fft_zoom_(QtWidgets.QWidget):
             ydat_=ydata[xStart:xStop]
         
         maximas=argrelextrema(ydat_, np.greater)
-        #print("ydat",ydat_)
+        self.fft_widget_.main.printf_("ydat",ydat_)
         for i in range(len(maximas[0])):
             y__=ydat_[maximas[0][i]]
             
@@ -283,7 +283,7 @@ class fft_zoom_(QtWidgets.QWidget):
                 
                 annot_offset_y=2*annot_offset_y####that is shifted down
         
-        print("offsets",annot_offset_x,annot_offset_y)
+        self.fft_widget_.main.printf_("offsets",annot_offset_x,annot_offset_y)
         ann=self.axes.annotate('(%.1f, %.1f)'%(dat_x, dat_y),(dat_x, dat_y), 
                                         color="black",xytext =(annot_offset_x, annot_offset_y),
                                         textcoords ='offset points',  arrowprops = self.arrowprops,

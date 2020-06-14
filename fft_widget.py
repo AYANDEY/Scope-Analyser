@@ -184,20 +184,20 @@ class FFT_handler(object):
             if w>self.last_width:
                 self.canvas.resize(w,h-30)
                 self.fftsmall.canvas.resize(w,60)
-                #print("R1_1_FFT")
+                self.main.printf_("R1_1_FFT")
             else:
                 self.canvas.resize(self.canvas.size().width(),(h-24))
                 self.fftsmall.canvas.resize(w,60)
-                #print("R1_2_FFT")
+                self.main.printf_("R1_2_FFT")
         elif self.rescalex_Extended_bool==True:
             if w>self.last_width:
                 self.canvas.resize(w,h-30)
                 self.fftsmall.canvas.resize(w,60)
-                #print("R2_1_FFT")
+                self.main.printf_("R2_1_FFT")
             else:
                 self.canvas.resize(self.canvas.size().width(),(h-30))
                 self.fftsmall.canvas.resize(w,60)
-                #print("R2_2_FFT")
+                self.main.printf_("R2_2_FFT")
     
     def on_pick(self,e):
         self.picked=True
@@ -207,7 +207,7 @@ class FFT_handler(object):
         if e.key=="control":
             self.zoomwin.ctrl=True
         if e.key=="d":
-            print("pressed")
+            self.main.printf_("pressed")
     
     def onKeyReleased(self,e):
         if e.key=="control":
@@ -251,7 +251,7 @@ class FFT_handler(object):
             self.picked=False
     
     def onCanvasDrawn(self,event):
-        print("FFT_DRAWN")
+        self.main.printf_("FFT_DRAWN")
         if self.canvas.size().width()<self.main.tabWidget.size().width():
             self.canvas.resize(self.main.tabWidget.size().width(),self.main.tabWidget.size().height()-54)
         self.px2pt=self.axes.transData.inverted()
@@ -260,8 +260,8 @@ class FFT_handler(object):
         ytick=self.axes.get_yticks()
         self.freq_per_div=(xtick[1]-xtick[0])/5
         self.y_per_div=(ytick[1]-ytick[0])
-        print("freq_per_div",self.freq_per_div)
-        print("y_per_div",self.y_per_div)
+        self.main.printf_("freq_per_div",self.freq_per_div)
+        self.main.printf_("y_per_div",self.y_per_div)
         self.set_freq_div_dial(self.freq_per_div)
         self.set_ydiv_dial(self.y_per_div)
         self.fftsmall_pt2px=self.fftsmall.axes.transData
@@ -272,7 +272,7 @@ class FFT_handler(object):
             self.rubberBand_reds_notDrawn=True
         self.lim_offset_x=self.px2pt.transform((65,0))[0]-self.px2pt.transform((0,0))[0]
         self.lim_offset_y=self.px2pt.transform((0,20))[1]-self.px2pt.transform((0,0))[1]
-        #print("limoffsets:",self.lim_offset_x,self.lim_offset_y)
+        self.main.printf_("limoffsets:",self.lim_offset_x,self.lim_offset_y)
         self.last_width=self.canvas.size().width()
         
     def onMouseMotion(self,e):
@@ -301,7 +301,7 @@ class FFT_handler(object):
             pass
         
         chIndx=self.main.fft_ch_select.currentIndex()
-        print("chIndx",chIndx)
+        self.main.printf_("chIndx",chIndx)
         self.main.Window_symetric_Radio.setChecked(self.ch_window_symmetry_list[chIndx])
         self.main.window_params_spin.setValue(self.ch_window_param_list[chIndx])
         if self.ch_fft_enabled_list[chIndx]:
@@ -339,7 +339,7 @@ class FFT_handler(object):
         #self.ch_indx=chIndx
     
     def window_change(self,winOrdisp_bool,win_param_change):
-        print("window_change")
+        self.main.printf_("window_change")
         try:
             self.main.window_type_combo.currentIndexChanged.disconnect()
         except Exception:
@@ -403,7 +403,7 @@ class FFT_handler(object):
         self.main.display_type_combo.currentIndexChanged.connect(lambda: self.window_change(False,False))
     
     def refference_changed(self):
-        print("refference changed")
+        self.main.printf_("refference changed")
         val=self.main.fft_refference_select_spin.value()
         unit_indx=self.main.fft_refference_select_unit.currentIndex()
         ref_val=self.ref_
@@ -414,7 +414,7 @@ class FFT_handler(object):
         chindx=self.main.fft_ch_select.currentIndex()
         self.refference_list[chindx]=[val,unit_indx]
         if ref_val!=self.ref_ and self.ch_display_type_list[chindx]==1:
-            print("updating")
+            self.main.printf_("updating")
             self.calculate_fft_update(chindx,None,None,None)
     
     def fft_CH_enable_toggled(self):
@@ -510,8 +510,8 @@ class FFT_handler(object):
             self.freq_per_div=fmag*1000 #to Hz from kHz
         elif funit_indx==2:
             self.freq_per_div=fmag*1000000 #to Hz from kHz
-        print("FREQ:",self.freq_per_div)
-        print("FREQ WAS:",freq_per_div_was)
+        self.main.printf_("FREQ:",self.freq_per_div)
+        self.main.printf_("FREQ WAS:",freq_per_div_was)
         if self.freq_per_div != freq_per_div_was:
             self.rescale_x()
         self.freq_dial_changed=False
@@ -564,8 +564,8 @@ class FFT_handler(object):
             self.y_per_div=ymag
         elif ydiv_unit_indx==1:
             self.y_per_div=ymag*1000
-        print("Ydiv:",self.y_per_div)
-        print("Ydiv WAS:",self.y_per_div_was)
+        self.main.printf_("Ydiv:",self.y_per_div)
+        self.main.printf_("Ydiv WAS:",self.y_per_div_was)
         if self.y_per_div != self.y_per_div_was:
             self.rescale_y()
         self.ydial_changed=False
@@ -724,7 +724,7 @@ class FFT_handler(object):
             redraw=False
         
         if redraw:
-            print("FFTcalled_draw_idle")
+            self.main.printf_("FFTcalled_draw_idle")
             self.canvas.draw_idle()
         
         if edit_small_view:
@@ -756,17 +756,17 @@ class FFT_handler(object):
         max_size_needed=int(division_size*max_div_to_draw)
         max_scalable_width=32768
         
-        print("Max size needed:",max_size_needed)
+        self.main.printf_("Max size needed:",max_size_needed)
         
         if max_size_needed<max_scalable_width:#Scale in Range
-            print("FFT Scalling in Range")
+            self.main.printf_("FFT Scalling in Range")
             
             xtics_step=freq_per_div*5
             
             current_scrol_area_width=self.fftw.scrollArea.size().width()
             
             if max_size_needed<current_scrol_area_width:#scale in range small
-                print("FFT Scalling in Range:SMALL")
+                self.main.printf_("FFT Scalling in Range:SMALL")
                 scallable_max_x=min(self.visible_plotXlim)+xtics_step*major_ticks
                 self.x_limit=[min(self.visible_plotXlim),scallable_max_x]
                 self.canvas.resize(current_scrol_area_width,self.canvas.size().height())
@@ -775,7 +775,7 @@ class FFT_handler(object):
                 self.rescalex_Extended_bool=False
                 self.rescalex_Out_ranged=False
             else : #scale in range extended
-                print("FFT Scalling in Range:EXTENDED")
+                self.main.printf_("FFT Scalling in Range:EXTENDED")
                 self.x_limit=self.X_lim
                 self.canvas.resize(max_size_needed,self.fftw.scrollArea.size().height()-24)
                 ticks=np.arange(self.x_limit[0],self.x_limit[1],step=xtics_step)
@@ -789,7 +789,7 @@ class FFT_handler(object):
                 self.canvas.draw_idle()
         else:
             
-            print("FFT Scalling out of  Range")
+            self.main.printf_("FFT Scalling out of  Range")
             max_scallable_div=max_scalable_width/division_size###no of divisions possible to draw
             max_scallable_freq_val=max_scallable_div*freq_per_div+min(self.visible_plotXlim)##value of maximum freq limit that can be plot
             scrl_val=self.fftw.scrollArea.horizontalScrollBar().value()
@@ -808,15 +808,15 @@ class FFT_handler(object):
                 
                 if (x_mid_-max_scallable_freq_val/2)<min(self.visible_plotXlim):
                     ####ATTACHED TO LEFT
-                    print("FFT Scalling out of Range:ATTACHED_LEFT")
+                    self.main.printf_("FFT Scalling out of Range:ATTACHED_LEFT")
                     self.x_limit=[min(self.visible_plotXlim),min(self.visible_plotXlim)+max_scallable_freq_val]
                     
                 elif (x_mid_+max_scallable_freq_val/2)>max(self.visible_plotXlim):
                     ##ATTACHED TO RIGHT
-                    print("FFT Scalling out of Range:ATTACHED_RIGHT")
+                    self.main.printf_("FFT Scalling out of Range:ATTACHED_RIGHT")
                     self.x_limit=[max(self.visible_plotXlim)-max_scallable_freq_val,max(self.visible_plotXlim)]
                 else:
-                    print("FFT Scalling out of Range:SOMEWHERE_MID")
+                    self.main.printf_("FFT Scalling out of Range:SOMEWHERE_MID")
                     self.x_limit=[x_mid_-max_scallable_freq_val/2,x_mid_+max_scallable_freq_val/2]
                     
             ticks=np.arange(self.x_limit[0],self.x_limit[1],step=xtics_step)
@@ -1011,7 +1011,7 @@ class FFT_handler(object):
                 
                 annot_offset_y=2*annot_offset_y####that is shifted down
         
-        print("offsets",annot_offset_x,annot_offset_y)
+        self.main.printf_("offsets",annot_offset_x,annot_offset_y)
         ann=self.axes.annotate('(%.1f, %.1f)'%(dat_x, dat_y),(dat_x, dat_y), 
                                         color="black",xytext =(annot_offset_x, annot_offset_y),
                                         textcoords ='offset points',  arrowprops = self.arrowprops,
@@ -1041,7 +1041,7 @@ class FFT_handler(object):
             self.zoomwin.zoom_multiplier=self.main.conf.FFT_zoom_multiplier
         
         if self.main.conf.FFT_annotation_offset!=[None,None,False]:
-            #print("self.main.conf.FFT_annotation_offset",self.main.conf.FFT_annotation_offset)
+            self.main.printf_("self.main.conf.FFT_annotation_offset",self.main.conf.FFT_annotation_offset)
             self.zoomwin.annot_offset_x,self.zoomwin.annot_offset_y=self.main.conf.FFT_annotation_offset
         
         if self.main.conf.FFT_keep_annotations!=[None,False]:
