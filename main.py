@@ -220,7 +220,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.firstRun=True
         #self.pushButton.clicked.connect(self.exmain.test_func)
         self.conf.get_position()
-
+    
     #########################################@EVENT HANDLING#################################################
     
     def tabChanged(self):
@@ -1889,6 +1889,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             for i in range(len(args)):
                 string+=str(args[i])
             print(string)
+    
     
 app = QtWidgets.QApplication(sys.argv)
 app.setStyleSheet("""
