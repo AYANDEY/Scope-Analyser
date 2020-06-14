@@ -8,7 +8,6 @@ import numpy as np
 import threading
 import time
 import matplotlib.pyplot as plt
-import threading
 
 class Ui_MeasureWindow(QtWidgets.QWidget):
     def __init__(self,parent):
@@ -246,10 +245,10 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
         for j in range((len(t_list)-1)):
             dt=t_list[j+1]-t_list[j]
             '''self.main.printf_("",",",t_list[j],",",",",pulse_bool_list[j],file=self.main.file_)
-            self.main.printf_(dt,file=self.main.file_)
-            self.main.printf_("",",",t_list[j+1],",",",",pulse_bool_list[j+1],file=self.main.file_)'''
+            #self.main.printf_(dt,file=self.main.file_)
+            #self.main.printf_("",",",t_list[j+1],",",",",pulse_bool_list[j+1],file=self.main.file_)'''
             puse_bool=pulse_bool_list[j+1]-pulse_bool_list[j]
-            self.main.printf_(dt,",",t_list[j+1],",",t_list[j],",",puse_bool,file=self.main.file_)
+            #self.main.printf_(dt,",",t_list[j+1],",",t_list[j],",",puse_bool,file=self.main.file_)
             dt_list.append([dt,puse_bool])
         self.main.printf_(dt_list)
         #dt_list=sorted(dt_list,key=itemgetter(0),reverse=True)
