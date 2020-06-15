@@ -92,7 +92,7 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
         measurement_list=[ch_name_list,self.Ch_Vmins,self.Ch_Vmaxs,Ch_Vmeans,self.Ch_Vrms,self.Ch_pk2pk,self.freq_Pulse_Duty_list]
         
         measurement_list_actual=[ch_name_list,self.Ch_Vmins_act,self.Ch_Vmaxs_act,self.Ch_Vmeans,self.Ch_Vrms_act,self.Ch_pk2pk_act,self.freq_Pulse_Duty_list_act]
-        self.main.printf_(measurement_list)
+        ##print(measurement_list)
         
         row_num=0
         ###CH_name Vmin, Vmax, Vmean Vrms PktoPk Freq TPeriod Pwidth+ PWidth- Duty+ Duty -
@@ -101,7 +101,7 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
             
             for i in range(self.tableWidget.columnCount()):
                 if i<=5:
-                    self.main.printf_("Items:",row_num,i,measurement_list[i][row_num])
+                    ##print("Items:",row_num,i,measurement_list[i][row_num])
                     self.tableWidget.setItem(row_num,i,QtWidgets.QTableWidgetItem(measurement_list[i][row_num]))
                     if i!=0:
                         self.tableWidget.item(row_num,i).setToolTip(str(measurement_list_actual[i][row_num])+"mv")
@@ -126,7 +126,7 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
                     col.setAlpha(self.opacity_)
                     self.tableWidget.item(row_num,i).setBackground(QtGui.QColor(col))
                     self.tableWidget.item(row_num,i).setTextAlignment(Qt.AlignCenter)
-                self.main.printf_(row_num,"  ",i)
+                #print(row_num,"  ",i)
             row_num +=1
         self.initial_members_count=row_num
         self.tableWidget.resizeColumnsToContents()
@@ -150,11 +150,11 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
             
             if self.shown==True or self.was_shown==True:
                 TH=int((self.tableWidget.rowCount()*Each_Row_height)+Actual_win_height_0_row)
-                self.main.printf_("TH=",TH)
+                #print("TH=",TH)
                 self.resize_by_func=True
                 self.tableWidget.resize(self.tableWidget.size().width(),TH+table_height_offset)
                 self.resize(self.size().width(),TH)
-                self.main.printf_("MeasureWin Size Updated")
+                #print("MeasureWin Size Updated")
         self.activateWindow()
     
     def read_dimentions(self):
@@ -167,7 +167,7 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
             T_row_Height+=self.tableWidget.rowHeight(i)
         Each_Row_height=T_row_Height/row_count
         Actual_win_height_0_row=mWin_Height-T_row_Height
-        self.main.printf_("AWH=",Actual_win_height_0_row," Prow_count=",row_count,"PT_row_Height=",T_row_Height,"mWin_Height=",mWin_Height,"table_height=",table_height)
+        ##print("AWH=",Actual_win_height_0_row," Prow_count=",row_count,"PT_row_Height=",T_row_Height,"mWin_Height=",mWin_Height,"table_height=",table_height)
         return Each_Row_height,Actual_win_height_0_row,table_height_offset
     
 ############################################################ MATH ###########################################################################
@@ -198,7 +198,7 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
             vmax=max(self.main.y[ch_num])
             vmin=min(self.main.y[ch_num])
             Ch_pk2pk.append(vmax-vmin)
-            self.main.printf_(vmax-vmin)
+            ##print(vmax-vmin)
             Ch_Vmins.append(vmin)
             Ch_Vmaxs.append(vmax)
             ch_num +=1
@@ -217,7 +217,7 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
         ch_num=0
         self.freq_Pulse_Duty_list=[]
         for members in self.main.ch_name_col_list:
-            self.main.printf_("CH NAME:",self.main.ch_name_col_list[ch_num][0]," CH Vmean:",y_mean[ch_num])
+            #print("CH NAME:",self.main.ch_name_col_list[ch_num][0]," CH Vmean:",y_mean[ch_num])
             FPD=self.single_Ch_freq(ch_num,y_mean[ch_num])#freq,period,mean_pos_pulse,mean_neg_pulse,Duty_P,Duty_N
             self.freq_Pulse_Duty_list_act.append(FPD)
             FPD=self.set_Units(FPD,1)
@@ -234,23 +234,23 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
                 if count_dir_bool==-1:
                     t_list.append(self.main.x[ch_number][i+1])
                     pulse_bool_list.append(1)
-                    self.main.printf_("line:",str(i+1),"X:",str(self.main.x[ch_number][i+1]),"Y:",str(self.main.y[ch_number][i+1]),"1")
+                    #print("line:",str(i+1),"X:",str(self.main.x[ch_number][i+1]),"Y:",str(self.main.y[ch_number][i+1]),"1")
                 count_dir_bool=1
             elif self.main.y[ch_number][i+1]<self.main.y[ch_number][i] and self.main.y[ch_number][i+1]<ch_V_mean:
                 if count_dir_bool==1:
                     t_list.append(self.main.x[ch_number][i+1])
                     pulse_bool_list.append(-1)
-                    self.main.printf_("line:",str(i+1),"X:",str(self.main.x[ch_number][i+1]),"Y:",str(self.main.y[ch_number][i+1]),"-1")
+                    #print("line:",str(i+1),"X:",str(self.main.x[ch_number][i+1]),"Y:",str(self.main.y[ch_number][i+1]),"-1")
                 count_dir_bool=-1
         for j in range((len(t_list)-1)):
             dt=t_list[j+1]-t_list[j]
-            #self.main.printf_("",",",t_list[j],",",",",pulse_bool_list[j],file=self.main.file_)
-            #self.main.printf_(dt,file=self.main.file_)
-            #self.main.printf_("",",",t_list[j+1],",",",",pulse_bool_list[j+1],file=self.main.file_)
+            ##print("",",",t_list[j],",",",",pulse_bool_list[j],file=self.main.file_)
+            ##print(dt,file=self.main.file_)
+            ##print("",",",t_list[j+1],",",",",pulse_bool_list[j+1],file=self.main.file_)
             puse_bool=pulse_bool_list[j+1]-pulse_bool_list[j]
-            #self.main.printf_(dt,",",t_list[j+1],",",t_list[j],",",puse_bool,file=self.main.file_)
+            ##print(dt,",",t_list[j+1],",",t_list[j],",",puse_bool,file=self.main.file_)
             dt_list.append([dt,puse_bool])
-        self.main.printf_(dt_list)
+        #print(dt_list)
         #dt_list=sorted(dt_list,key=itemgetter(0),reverse=True)
         max_end_indx_pos=-1
         max_end_indx_neg=-1
@@ -268,13 +268,13 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
             neg_pulse=sorted(neg_pulse,reverse=True)
             for i in range(len(pos_pulse)-1):
                 rel_dev=(pos_pulse[i]-pos_pulse[i+1])/pos_pulse[i]
-                self.main.printf_("indx=",i," dtf=",dt_list[i+1]," dti=",dt_list[i]," rel_dev=",rel_dev)
+                #print("indx=",i," dtf=",dt_list[i+1]," dti=",dt_list[i]," rel_dev=",rel_dev)
                 if rel_dev>0.50:   #deviations above 50% of the max pulse width is neglected... (Considering stray)
                     max_end_indx_pos=i+1
                     break
             for i in range(len(neg_pulse)-1):
                 rel_dev=(neg_pulse[i]-neg_pulse[i+1])/neg_pulse[i]
-                self.main.printf_("indx=",i," dtf=",dt_list[i+1]," dti=",dt_list[i]," rel_dev=",rel_dev)
+                #print("indx=",i," dtf=",dt_list[i+1]," dti=",dt_list[i]," rel_dev=",rel_dev)
                 if rel_dev>0.50:   #deviations above 50% of the max pulse width is neglected... (Considering stray)
                     max_end_indx_neg=i+1
                     break
@@ -300,7 +300,7 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
         Duty_N=(mean_neg_pulse/(mean_pos_pulse+mean_neg_pulse))*100
         period=2*mean_pulse
         freq=(1/(2*mean_pulse))
-        self.main.printf_("Freq=",freq," +PWidth=",mean_pos_pulse," -PWidth=",mean_neg_pulse," Duty_P=",Duty_P," Duty_N",Duty_N)
+        #print("Freq=",freq," +PWidth=",mean_pos_pulse," -PWidth=",mean_neg_pulse," Duty_P=",Duty_P," Duty_N",Duty_N)
         return freq,period,mean_pos_pulse,mean_neg_pulse,Duty_P,Duty_N
     
     def set_Units(self,data_list,measurable_flag):
@@ -369,7 +369,7 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
     def showEvent(self,event):
         
         QtWidgets.QWidget.showEvent(self,event)
-        self.main.printf_("shown")
+        #print("shown")
         
         if isinstance(self.win_pos, str)==False:
             self.move(self.win_pos)
@@ -385,7 +385,7 @@ class Ui_MeasureWindow(QtWidgets.QWidget):
     def resizeEvent(self,event):
         QtWidgets.QWidget.resizeEvent(self, event)
         if self.shown==True and self.resize_by_func==False:
-            self.main.printf_("resize")
+            #print("resize")
             self.tableWidget.resize(self.size().width(),self.size().height())
             self.tableWidget_mWin_size_same=True
         self.resize_by_func=False

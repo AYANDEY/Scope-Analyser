@@ -1,7 +1,7 @@
 import sys
 import threading
 import ctypes
-from os import path,remove,unlink
+from os import path,remove,unlink,mkdir  
 import time
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt,QEvent,QPoint,QRect,QLine
@@ -26,6 +26,20 @@ from matplotlib.lines import Line2D
 from matplotlib import cbook, cm, colors as m_colors
 from matplotlib.ticker import AutoMinorLocator
 from PyQt5.Qt import QMetaMethod
+##imports for pyinstaller 
+import mplwidget
+import mplsmall_main 
+import mplsmall_FFT
+import fft_widget
+import v_spinbox
+import fft_refference_select_spin
+import fft_ydiv_spin
+import freq_div_spin
+import t_spinbox
+import v_spinbox
+import window_param_spin
+from datetime import datetime
+
 
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
@@ -33,13 +47,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         loadUi("main.ui",self)
+        
         self.setWindowTitle("SCOPE ANALYSER")
         self.fft_panel_frame.setVisible(False)
         self.mplsmall_FFT.setVisible(False)
         self.main_panel_frame.setVisible(True)
         self.mplsmall.setVisible(True)
         self.setWindowIcon(QtGui.QIcon('res\\icon.ico'))
-        self.debug_=False
+        self.debug_=True
+        self.original_stdout=sys.stdout
+        self.stdouttofile()
         ###################################################CONFIG#################################################################
         self.conf=config(self)
         ####################################################BINDINGS##############################################################
@@ -57,7 +74,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.main_ylim=[0,0]
         self.plot_opacity=0
         self.get_config(False)####not called by actionbutton 
-        
+        self.stdouttofile()
         self.tabWidget.setStyleSheet("QTabWidget::pane {border-right: 0px;border-bottom: 0px;border-left:0px;border-top:0px;}")
         self.figure = self.MplWidget.figure
         self.plot_axes = self.figure.add_subplot(1, 1, 1)
@@ -220,7 +237,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.firstRun=True
         #self.pushButton.clicked.connect(self.exmain.test_func)
         self.conf.get_position()
-    
+
     #########################################@EVENT HANDLING#################################################
     
     def tabChanged(self):
@@ -250,8 +267,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.exmain.p.remove()
                 self.refresh_plot()
             except Exception:
-                self.printf_(sys.exc_info())
-                self.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+                print(sys.exc_info())
+                print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
         elif event.key()==Qt.Key_Control:
             self.fftW.ctrl_handle(True)
         
@@ -261,7 +278,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     
     def resizeEvent(self,event):
         QMainWindow.resizeEvent(self, event)
-        self.printf_("resize")
+        print("resize")
         if self.shown_flag==True and hasattr(self, "resize_timer")==True:
             if self.resize_timer.is_alive():
                 self.resize_timer.cancel()
@@ -289,32 +306,32 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             if w>self.width_during_scaling:
                 self.canvas.resize(w,(h-self.mplwidget_height_offset))
                 self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
-                self.printf_("R1")
+                print("R1")
             else:
                 #self.canvas.resize(self.canvas.size().width(),(h-self.mplwidget_height_offset))
                 self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
-                self.printf_("R1E")
+                print("R1E")
         elif self.rescalex_Extended_flag==True:
             self.rubberBand_reds_notDrawn=True
             if w>self.width_during_scaling:
                 self.canvas.resize(w,(h-self.mplwidget_height_offset))
                 self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
-                self.printf_("R2_1")
+                print("R2_1")
             else:
                 self.canvas.resize(self.canvas.size().width(),(h-self.mplwidget_height_offset))
                 self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
-                self.printf_("R2_2")
+                print("R2_2")
         elif self.shown_flag==True:##INIT
             self.canvas.resize(w,(h-self.mplwidget_height_offset))
             self.fftW.canvas.resize(w,h-self.mplwidget_height_offset)
             self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
             self.mplsmall_FFT.canvas.resize(w,self.mplwidget_height_offset)#########fftw and the small of it resized on __init__
-            self.printf_("R3")
+            print("R3")
       
     def showEvent(self, event):
         QMainWindow.showEvent(self, event)
         QApplication.processEvents()
-        self.printf_("Shown")
+        print("Shown")
         self.shown_flag=True
         self.exmain.cursor_show_all()
         if self.Window_minimised==False:
@@ -334,7 +351,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.default_canvas_height=h
             self.canvas.resize(w,h)
             self.fftW.canvas.resize(w,h)
-            self.printf_("ScrollArea:",w," ",h)
+            print("ScrollArea:",w," ",h)
             self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
             self.mplsmall_FFT.canvas.resize(w,self.mplwidget_height_offset)
         elif self.Window_minimised==True:
@@ -349,6 +366,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self,e):
         #self.save_win_pos()
         self.conf.save_position()
+        self.log_file.close()
         if self.infoWin.closed==False:
             self.infoWin.close()
             self.infoWin.deleteLater()
@@ -365,7 +383,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         return super(Ui_MainWindow,self).closeEvent(e)
     
     def On_Canvas_drawn(self,draw_event):
-        self.printf_("Draw_evt")
+        print("Draw_evt")
         
         if self.canvas.size().width()<self.tabWidget.size().width():
             self.canvas.resize(self.tabWidget.size().width(),self.tabWidget.size().height()-54)
@@ -384,8 +402,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             try:
                 self.exmain.p.remove()
             except Exception:
-                self.printf_(sys.exc_info())
-                self.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+                print(sys.exc_info())
+                print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
         if self.drawn==False:
             self.exmain.cursor_show_all()
         self.exmain.cursor_refresh_on_redraw()
@@ -393,14 +411,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         
         if self.rescalex_Extended_flag:
             half_page_step=int(self.MplWidget.scrollArea.horizontalScrollBar().pageStep()/2)
-            self.printf_("MID_TO_SET",self.set_scrl_val)#####midCHECK
+            print("MID_TO_SET",self.set_scrl_val)#####midCHECK
             self.MplWidget.scrollArea.horizontalScrollBar().setValue(self.set_scrl_val-half_page_step)
         
         self.drawn=True
         if self.firstRun==True:
             ytick=self.plot_axes.get_yticks(minor=False)
             self.ydiv=ytick[1]-ytick[0]
-            self.printf_("ydiv",self.ydiv)
+            print("ydiv",self.ydiv)
             self.firstRun=False
 
         for i in range(len(self.zeroline_visibility_list)):
@@ -420,11 +438,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         CH_selected=self.CH_select_combo.currentText()
         member_match=-1
         member_matched=0
-        self.printf_(self.ch_volt_div_list)
+        print(self.ch_volt_div_list)
         for members in self.ch_volt_div_list:
             member_match+=1
             if members[0]==CH_selected:
-                self.printf_("Channel selected:",members[0])
+                print("Channel selected:",members[0])
                 member_matched=1
                 break
         if member_matched==1:
@@ -464,7 +482,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.dialog.ui.comboBox.currentIndexChanged.connect(self.color_combo_change)
             self.dialog.exec_()
         else:
-            self.printf_("No file to plot")
+            print("No file to plot")
     
     ########################################@File Open COLOLR DIALOG@#####################################
     
@@ -472,8 +490,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         
         self.Current_ch_name= str(self.dialog.ui.comboBox.currentText())
         btn_color = self.dialog.ui.color_btn.palette().color(1).name(0)
-        self.printf_(self.Current_ch_name)
-        self.printf_(btn_color)
+        print(self.Current_ch_name)
+        print(btn_color)
         self.dialog.done(1)
         
         self.disconnect_receivers(self.CH_enable_sw,self.CH_enable_sw.toggled)
@@ -481,17 +499,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.plot_from_path(self.Current_file_dialog[0],self.Current_ch_name,btn_color) #########funtion to plot form file location, chName, ch Color
     
     def Color_dialog_Cancel(self):
-        self.printf_("No changes Done")
+        print("No changes Done")
         self.dialog.done(0)
     
     def color_pick(self):
         self.ch_color= QtWidgets.QColorDialog.getColor()
         self.Current_ch_color=self.ch_color.name(0)
         if str(self.ch_color.name(0)) != "#000000":
-            self.printf_("background-color:"+self.Current_ch_color)
+            print("background-color:"+self.Current_ch_color)
             self.dialog.ui.color_btn.setStyleSheet("background-color:"+self.Current_ch_color)
         else:
-            self.printf_("No color Selected")
+            print("No color Selected")
     
     def color_combo_change(self):
         ch_name=str(self.dialog.ui.comboBox.currentText())
@@ -520,9 +538,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.menu_col_combo_change()
         if (self.menu_col_dialog.ui.comboBox.count()<=self.all_plot_count):
             run_num = self.all_plot_count-self.menu_col_dialog.ui.comboBox.count()
-            self.printf_("COMBOCOUNT:",self.menu_col_dialog.ui.comboBox.count())
-            self.printf_("ALL PLOT COUNT",self.all_plot_count)
-            self.printf_("RUN_NUM",run_num)
+            print("COMBOCOUNT:",self.menu_col_dialog.ui.comboBox.count())
+            print("ALL PLOT COUNT",self.all_plot_count)
+            print("RUN_NUM",run_num)
             combo_count=self.menu_col_dialog.ui.comboBox.count()+1
             for i in range(run_num):
                 self.menu_col_dialog.ui.comboBox.addItem("CH"+str(combo_count+i))
@@ -536,8 +554,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def MenuColor_dialog_ok(self):
         self.Current_ch_name= str(self.menu_col_dialog.ui.comboBox.currentText())
         btn_color = self.menu_col_dialog.ui.color_btn.palette().color(1).name(0)
-        self.printf_(self.Current_ch_name)
-        self.printf_(btn_color)
+        print(self.Current_ch_name)
+        print(btn_color)
         self.menu_col_dialog.done(1)
         self.ch_color_edit=1
         if self.Current_file_dialog[0] !="":
@@ -552,11 +570,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.Current_ch_color=self.ch_color.name(0)
         if str(self.ch_color.name(0)) != "#000000":
             
-            self.printf_("background-color:"+self.Current_ch_color)
+            print("background-color:"+self.Current_ch_color)
             self.menu_col_dialog.ui.color_btn.setStyleSheet("background-color:"+self.Current_ch_color)
         else:
             
-            self.printf_("No color Selected")
+            print("No color Selected")
 
     def menu_col_combo_change(self):
             ch_name=str(self.menu_col_dialog.ui.comboBox.currentText())
@@ -574,7 +592,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     self.menu_col_dialog.ui.color_btn.setStyleSheet("background-color:"+self.default_color_list[self.all_plot_count])
                 else:
                     self.menu_col_dialog.ui.color_btn.setStyleSheet("background-color:#ffffff")
-    
+
     #########################################@INFORMATION WINDOW@##############################################
     def Open_Information_window(self):
         #MainWindow.hide()
@@ -604,7 +622,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                         self.infoWin.tableWidget.item(row_num,i).setBackground(QtGui.QColor(members[i]))
                         
                     self.infoWin.tableWidget.item(row_num,i).setTextAlignment(Qt.AlignCenter)
-                    self.printf_(row_num,"  ",i,"  ",members[i])
+                    print(row_num,"  ",i,"  ",members[i])
                 row_num +=1
             self.initial_members_count=row_num
             self.infoWin.tableWidget.resizeColumnsToContents()
@@ -614,12 +632,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         if needs_size_update:
             if self.infoWin.shown==True or self.infoWin.was_shown==True:
                 TH=int((self.infoWin.tableWidget.rowCount()*Each_Row_height)+Actual_win_height_0_row)
-                self.printf_("TH=",TH)
+                print("TH=",TH)
                 self.infoWin.resize_by_func=True
                 #self.infoWin.tableWidget_Infow_size_same=False
                 self.infoWin.tableWidget.resize(self.infoWin.tableWidget.size().width(),TH+table_height_offset)
                 self.infoWin.resize(self.infoWin.size().width(),TH)
-                self.printf_("InfoWin Size Updated")
+                print("InfoWin Size Updated")
         
         self.infoWin.activateWindow()
         self.infoWin.show()
@@ -634,7 +652,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             T_row_Height+=self.infoWin.tableWidget.rowHeight(i)
         Each_Row_height=T_row_Height/row_count
         Actual_win_height_0_row=info_Win_Height-T_row_Height
-        self.printf_("AWH=",Actual_win_height_0_row," Prow_count=",row_count,"PT_row_Height=",T_row_Height,"info_Win_Height=",info_Win_Height,"table_height=",table_height)
+        print("AWH=",Actual_win_height_0_row," Prow_count=",row_count,"PT_row_Height=",T_row_Height,"info_Win_Height=",info_Win_Height,"table_height=",table_height)
         return Each_Row_height,Actual_win_height_0_row,table_height_offset
     ############################################MEASUREMENT_WINDOW#############################################
     def Open_measure_window(self):
@@ -650,7 +668,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.matched_pos=-1
         
         for members in self.ch_name_col_list:
-            self.printf_(len(members))
+            print(len(members))
             self.matched_pos += 1
             if members[0]==ch_name: ##if current channel matches with already plotted channel @MEMBER_MATCH
                 members[1]=ch_color
@@ -658,8 +676,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     path=members[2] ###saved path will be used if channel is on edit @CHANNEL_EDIT
                 else:
                     members[2]=path ##else 'path' passed to this function will be used as its new path  @CHANNEL_EDIT
-                self.printf_("Member_match",self.matched_pos)
-                self.printf_(path)
+                print("Member_match",self.matched_pos)
+                print(path)
                 self.member_match=1
                 break
         
@@ -695,7 +713,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             
             self.all_plot_count += 1
         
-        self.printf_( self.ch_name_col_list)
+        print( self.ch_name_col_list)
         if self.member_match==0 and self.ch_color_edit==1:
             self.ch_color_edit=0
             return
@@ -820,7 +838,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             else:
                 #self.plot_axes.clear()
                 #color edit for one 
-                self.printf_("Editing One")
+                print("Editing One")
                 self.axes_list[0].get_lines()[0].set_color(ch_color)
                 self.axes_list[0].legend().set_visible(False)
                 self.plot_axes.legend().set_visible(False)
@@ -867,12 +885,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     xi.append(float(row[0]))
                     yi.append(float(row[1]))
                 line_num += 1
-        self.printf_("On_plotting_multiple")
-        self.printf_("EDIT_FLAG",edit_flag)
-        self.printf_("CHANNEL_COLOR_EDIT:",ch_color_edit)
+        print("On_plotting_multiple")
+        print("EDIT_FLAG",edit_flag)
+        print("CHANNEL_COLOR_EDIT:",ch_color_edit)
         xmin=min(xi)
         xmax=max(xi)
-        self.printf_("limit:",self.x_limit[0],self.x_limit[1])
+        print("limit:",self.x_limit[0],self.x_limit[1])
         t_base,v_base=self.parse_header(line_headeri)
         
         if edit_flag!=1 and  ch_color_edit==0:
@@ -920,7 +938,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             
         elif edit_flag==1 and ch_color_edit==0:
             ###############while previous entry is on edit
-            self.printf_("Matched_pos:",self.matched_pos)
+            print("Matched_pos:",self.matched_pos)
             self.CH_select_combo.setCurrentIndex(self.matched_pos)
             #self.plot_axes.clear()
             
@@ -948,7 +966,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.axes_list[self.matched_pos].set_xlim(self.x_limit[0],self.x_limit[1])
             self.line_list[self.matched_pos]=plot_[0]
             self.plot_axes.set_xlim(self.x_limit[0],self.x_limit[1])
-            self.printf_("limit:",self.x_limit[0],self.x_limit[1])
+            print("limit:",self.x_limit[0],self.x_limit[1])
             
             self.exmain.hide_zeroline(self.matched_pos)
             
@@ -959,14 +977,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             #self.zline_to_draw=[True,self.matched_pos,self.zeroline_visibility_list[self.matched_pos]]
             
             self.plot_axes.yaxis.set_minor_locator(AutoMinorLocator(5))
-            self.printf_(self.ch_name_col_list[i][0],self.ch_name_col_list[i][2],self.ch_name_col_list[i][1])
+            print(self.ch_name_col_list[i][0],self.ch_name_col_list[i][2],self.ch_name_col_list[i][1])
             self.file_edited=True
             
             self.mplsmall.edit_plot(self.matched_pos,xi,yi,ch_color,self.x_limit)
             self.fftW.calculate_fft_update(self.matched_pos,xi,yi,ch_color)
             
         elif edit_flag==1 and ch_color_edit==1:##################color Edit##############
-            self.printf_("Matched_pos:",self.matched_pos)
+            print("Matched_pos:",self.matched_pos)
             self.axes_list[self.matched_pos].get_lines()[0].set_color(ch_color)
             self.ch_color_edit=0
             self.col_edited=True
@@ -1019,7 +1037,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         v_base=0
         has_timebase=False
         has_vbase=False
-        self.printf_(line_header_)
+        print(line_header_)
         for member in line_header_:
             if 'timebase=' in member:
                 timebase_member=member
@@ -1045,7 +1063,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 elif t_base_unit=="s":
                     t_base=t_base*1e9
             except Exception:
-                self.printf_(sys.exc_info())
+                print(sys.exc_info())
         if has_vbase:
             baseindx= vbase_member.index('voltbase=')
             unit_start_indx=vbase_member.index('(')
@@ -1071,19 +1089,19 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         try:
             threading.Thread(target=self.CH_select_combo_change_thread).start()
         except Exception:
-            self.printf_(sys.exc_info())
-            self.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+            print(sys.exc_info())
+            print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
     
     def CH_select_combo_change_thread(self):
         
         CH_selected=self.CH_select_combo.currentText()
         member_match=-1
         member_matched=0
-        self.printf_(self.ch_volt_div_list)
+        print(self.ch_volt_div_list)
         for members in self.ch_volt_div_list:
             member_match+=1
             if members[0]==CH_selected:
-                self.printf_("Channel selected:",members[0])
+                print("Channel selected:",members[0])
                 member_matched=1
                 break
         if member_matched==1:
@@ -1104,7 +1122,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.v_unit_combo.setCurrentIndex(0)
                 self.vdisp.setText(str(current_volt_per_div)+" mVolt/div")
                 self.vdial.setValue(self.get_closest_index(self.v_step_vals,current_volt_per_div))
-            self.printf_("MULTI_INDEX",self.multiplier_index_list[member_match])
+            print("MULTI_INDEX",self.multiplier_index_list[member_match])
             self.multiplier_combo.setCurrentIndex(self.multiplier_index_list[member_match])
             self.zero_line_enabled_sw.setChecked(self.zeroline_visibility_list[member_match])
             
@@ -1120,7 +1138,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         if int_==3:
             self.disconnect_receivers(self.v_unit_combo,self.v_unit_combo.currentIndexChanged)
             #dial direct control
-            self.printf_("Vdial_val_Pressed_changed")
+            print("Vdial_val_Pressed_changed")
             
             current_v_step_indx= self.vdial.value()
             self.v_step_indx=current_v_step_indx
@@ -1142,12 +1160,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 try:
                     reScale_thread.start()
                 except Exception:
-                    self.printf_(sys.exc_info())
-                    self.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+                    print(sys.exc_info())
+                    print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
             else:
                 self.v_panel_Enabled(True)
         elif int_==2:
-            self.printf_("Vdial_val__changed")
+            print("Vdial_val__changed")
             #v_spinbx control
             self.current_volt_per_div=self.v_spinbx.value()
             self.v_unit_indx=self.v_unit_combo.currentIndex()
@@ -1173,8 +1191,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 try:
                     reScale_thread.start()
                 except Exception:
-                    self.printf_(sys.exc_info())
-                    self.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+                    print(sys.exc_info())
+                    print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
         self.v_panel_Enabled(True)
     
     def vdial_val_changed(self):
@@ -1194,9 +1212,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         try:
             threading.Thread(target=self.Ch_enabled_changed_thread).start()
         except Exception:
-            self.printf_(sys.exc_info())
+            print(sys.exc_info())
             self.CH_enable_sw.setEnabled(True)
-            self.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+            print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
         
     def Ch_enabled_changed_thread(self):
         self.CH_enable_sw.toggled.disconnect()
@@ -1208,7 +1226,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for members in self.ch_name_col_list:
             matched_indx += 1
             if members[0]==curr_ch:
-                self.printf_("Enbled:",curr_ch)
+                print("Enbled:",curr_ch)
                 matched=1
                 break
         if matched==1:
@@ -1285,8 +1303,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 try:
                     rescale_x_thread.start()
                 except Exception:
-                    self.printf_(sys.exc_info())
-                    self.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+                    print(sys.exc_info())
+                    print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
             else:
                 self.t_panel_Enabled(True)
         if flag_==1:
@@ -1299,8 +1317,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 tdial_val=9*self.t_unit_indx+t_index+1##to have index val match index 0 is the 1st candidate of list
                 self.t_dial.setValue(tdial_val)
             except Exception:
-                self.printf_(sys.exc_info())
-                self.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+                print(sys.exc_info())
+                print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
                 t_index=-1
             self.t_label.setText(str(self.t_val)+" "+str(self.t_unit)+"/div (minor)")
             #self.t_unit_combo.currentIndexChanged.connect(self.t_unit_combo_value_chg)
@@ -1312,8 +1330,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             try:
                 self.rescale_x_thread.start()
             except Exception:
-                self.printf_(sys.exc_info())
-                self.printf_("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
+                print(sys.exc_info())
+                print("LINE NO:",format(sys.exc_info()[-1].tb_lineno))
         self.plot_axes.yaxis.set_minor_locator(AutoMinorLocator(5))
     
     def tdial_changed(self):
@@ -1338,22 +1356,22 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 t_base_max=t_base_max/1000##in millis
                 if t_base_max>800:
                     t_base_max=t_base_max/1000##in Sec
-                    self.printf_("T_base:",t_base_max,"s")
+                    print("T_base:",t_base_max,"s")
                     self.t_spinbx.setValue(int(t_base_max))
                     self.t_unit_combo.setCurrentIndex(3)
                     
                     if t_base_max>40:
-                        self.printf_("timebase_out_of_range")
+                        print("timebase_out_of_range")
                 else:
-                    self.printf_("T_base:",t_base_max,"ms")
+                    print("T_base:",t_base_max,"ms")
                     self.t_spinbx.setValue(int(t_base_max))
                     self.t_unit_combo.setCurrentIndex(2)
             else:
-                self.printf_("T_base:",t_base_max,"us")
+                print("T_base:",t_base_max,"us")
                 self.t_spinbx.setValue(int(t_base_max))
                 self.t_unit_combo.setCurrentIndex(1)
         else:
-            self.printf_("T_base:",t_base_max,"ns")
+            print("T_base:",t_base_max,"ns")
             self.t_spinbx.setValue(int(t_base_max))
             self.t_unit_combo.setCurrentIndex(0)
         
@@ -1364,7 +1382,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     
     #######################################Rescaled Plot################################################################
     def reScalePlot(self):
-        self.printf_("rescaling_plot")
+        print("rescaling_plot")
         if self.replotting !=1:
             self.replotting=1
             ch_name=self.CH_select_combo.currentText()
@@ -1445,7 +1463,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.exmain.CH_cursor_combo_change()###############triggered to get new rescaled Y values for cursors and refresh
     
     def rescale_x(self):
-        self.printf_("rescalling..")
+        print("rescalling..")
         major_ticks=5
         minor_ticks=5
         minor_ticks_perpage=major_ticks*minor_ticks
@@ -1470,17 +1488,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         x_in_bsUnit=(self.x_limit[1]-self.x_limit[0])*t_scale  ##maximum x_limit that is to be scalled in nanosec microsec etc..
         
         if max_time>=x_in_bsUnit:#SCALING in RANGE
-            self.printf_("SCALing_IN_RANGE\n")
+            print("SCALing_IN_RANGE\n")
             
             scaled_width=int((default_canvas_width*x_in_bsUnit)/(minor_ticks_perpage*self.t_val))
-            self.printf_("Scaled_Width:",scaled_width)
+            print("Scaled_Width:",scaled_width)
             current_scrol_area_width=self.MplWidget.scrollArea.size().width()
-            self.printf_("Curr SCRL Width:",current_scrol_area_width)
+            print("Curr SCRL Width:",current_scrol_area_width)
             
             self.plotted_in_range=True
             
             if scaled_width<current_scrol_area_width:
-                self.printf_("SCALing_IN_RANGE:SMALL")
+                print("SCALing_IN_RANGE:SMALL")
                 scroll_val=self.MplWidget.scrollArea.horizontalScrollBar().value()
                 scroll_max=self.MplWidget.scrollArea.horizontalScrollBar().maximum()
                 scroll_page_step=self.MplWidget.scrollArea.horizontalScrollBar().pageStep()
@@ -1489,9 +1507,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 x_canvas_pos=CANVAS_pos[0]
                 
                 self.rescalex_Extended_flag=False
-                self.printf_("tval:",self.t_val,"MTICKSPERPAGE:",minor_ticks_perpage,"tscale:",t_scale)
+                print("tval:",self.t_val,"MTICKSPERPAGE:",minor_ticks_perpage,"tscale:",t_scale)
                 x_max=((self.t_val*minor_ticks_perpage)/t_scale)*current_scrol_area_width/default_canvas_width
-                self.printf_("x_max",x_max)
+                print("x_max",x_max)
                 for i in range(self.all_plot_count):  ####@@@@@@@@@@@@@@@@@@@@@@@@@x_limit of all plots are made same
                     self.axes_list[i].set_xlim( self.x_limit[0],x_max)
                 
@@ -1511,7 +1529,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 
                 
             else:
-                self.printf_("SCALing_IN_RANGE:EXTENDED")
+                print("SCALing_IN_RANGE:EXTENDED")
                 scroll_val=self.MplWidget.scrollArea.horizontalScrollBar().value()
                 scroll_max=self.MplWidget.scrollArea.horizontalScrollBar().maximum()
                 scroll_page_step=self.MplWidget.scrollArea.horizontalScrollBar().pageStep()
@@ -1525,10 +1543,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                         self.axes_list[i].set_xlim( self.x_limit[0],self.x_limit[1] )
                 
                 self.plot_axes.set_xlim(self.x_limit[0],self.x_limit[1] )
-                self.printf_("x_max",self.x_limit[1])
+                #print("x_max",self.x_limit[1])
                 ticks=np.arange(self.x_limit[0],self.x_limit[1],step=xtics_step)
-                self.printf_((ticks))
-                self.printf_("start:",self.x_limit[0],"Stop:",self.x_limit[1],"step:",xtics_step)
+                print((ticks))
+                print("start:",self.x_limit[0],"Stop:",self.x_limit[1],"step:",xtics_step)
                 self.plot_axes.set_xticks(ticks) ###reassiged xticks
                 if self.canvas.size().width()==scaled_width:
                     self.canvas.resize(scaled_width,self.MplWidget.scrollArea.size().height()-self.mplwidget_height_offset)###doesnot draws if the size has no change
@@ -1537,7 +1555,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     self.canvas.resize(scaled_width,self.MplWidget.scrollArea.size().height()-self.mplwidget_height_offset)
                 
                 #self.xtics_step_in_range=xtics_step
-                self.printf_("SCALED_WIDTH:",scaled_width)
+                print("SCALED_WIDTH:",scaled_width)
                 self.plotted_with_small_scaledsize=0
                 self.width_during_scaling=scaled_width
             self.plotted_out_of_range=False
@@ -1546,7 +1564,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.plotted_in_range=False
             self.plotted_with_small_scaledsize=-1
             self.rescalex_Extended_flag=True
-            self.printf_("SCALing_OUT_OF_RANGE\n")
+            print("SCALing_OUT_OF_RANGE\n")
             self.xtics_step_out_ranged=xtics_step
             scroll_val=self.MplWidget.scrollArea.horizontalScrollBar().value()
             scroll_max=self.MplWidget.scrollArea.horizontalScrollBar().maximum()
@@ -1563,7 +1581,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 x_canvas_POS=(scroll_val+scroll_page_step/2)###@x_canvas_pos is the point of interrest arount which 
                 CANVAS_pos=self.px2pt.transform((x_canvas_POS,0))
                 x_canvas_pos=CANVAS_pos[0]
-                self.printf_("x_canvas_pos",x_canvas_pos)
+                print("x_canvas_pos",x_canvas_pos)
                 x_max=self.x_limit[1]
                 x_min=self.x_limit[0]
                 X_tot = x_max-x_min
@@ -1573,17 +1591,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             elif  self.plotted_out_of_range==True:######changed to elif form if
                 if self.t_val_in_sec_out_ranged>t_val_in_sec_out_ranged:
                     self.zoom_within_out_ranged=1#zooming in
-                    self.printf_("zooming in")
+                    print("zooming in")
                     x_canvas_POS=(scroll_val+scroll_page_step/2)###@x_canvas_pos is the point of interrest arount which 
                     CANVAS_pos=self.px2pt.transform((x_canvas_POS,0))
                     x_canvas_pos=CANVAS_pos[0]
                     x_min=self.x_limit_rescaled_out_of_range[0]
                     x_max=self.x_limit_rescaled_out_of_range[1]
                     X_tot=(x_max-x_min)
-                    self.printf_("x_canvas_pos",x_canvas_pos)
+                    print("x_canvas_pos",x_canvas_pos)
                 else:
                     self.zoom_within_out_ranged=-1#zooming out
-                    self.printf_("Zooming out")
+                    print("Zooming out")
                     if self.mplsmall.rescale_done_by_selection:
                         x_canvas_pos=self.mplsmall.reseted_mid
                         self.mplsmall.rescale_done_by_selection=False
@@ -1596,46 +1614,38 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             
             #### when the half of region of plot i.e "max_time/2" is higer than the 
             # regiaon between the point of interent around which it is scalled and the left edge 
-            '''self.printf_(" ############################################################################################")
-            self.printf_("X_left:",x_min,"  X_right:",x_max)
-            self.printf_("x_total:",x_in_bsUnit)
-            self.printf_("position in canvas:",x_canvas_pos)
-            left_gap=x_canvas_pos-x_min #gap in left from pt of interest
-            right_gap=x_max-x_canvas_pos
-            self.printf_("max_time",max_time)
-            self.printf_("LEFT_gap:",left_gap,"    Right_gap:",right_gap)
-            self.printf_(" ############################################################################################")'''
+            
         ##########################################################ATTACHEMENTS#########################################
             self.x_canvas_out_ranged=x_canvas_pos
             left_gap=x_canvas_pos-x_min #gap in left from pt of interest
             right_gap=x_max-x_canvas_pos
             half_max_time_sec=max_time/(2*t_scale)
             max_time_sec=max_time/t_scale
-            self.printf_("half_max_time_sec:",half_max_time_sec)
+            #print("half_max_time_sec:",half_max_time_sec)
         ######Attached to LEFT###############################################
             if left_gap<=half_max_time_sec:
                 xlimit=[x_min,(x_min+max_time_sec)]
                 self.x_limit_rescaled_out_of_range=xlimit
-                '''self.printf_("Attached to left")
-                self.printf_("left_gap:",left_gap)
-                self.printf_("xlimit:",xlimit)'''
+                '''print("Attached to left")
+                print("left_gap:",left_gap)
+                print("xlimit:",xlimit)'''
         ######Away from LEFT###############################################
             if left_gap>half_max_time_sec:
                 right_gap=x_max-x_canvas_pos
-                self.printf_("Away from left")
+                print("Away from left")
             #############################Attached to right ##################
                 if right_gap<=half_max_time_sec:
                     xlimit=[(x_max-max_time_sec),x_max]
                     self.x_limit_rescaled_out_of_range=xlimit
-                    self.printf_("Attached to right")
-                    self.printf_("Xlimit:",xlimit)
+                    print("Attached to right")
+                    print("Xlimit:",xlimit)
                     
             ##################must be attached to somewhere middle#################
                 else:
                     xlimit=[(x_canvas_pos-half_max_time_sec),(x_canvas_pos+half_max_time_sec)]
                     self.x_limit_rescaled_out_of_range=xlimit
-                    self.printf_(left_gap,"away in the middle",right_gap)
-                    self.printf_("Xlimit:",xlimit)
+                    print(left_gap,"away in the middle",right_gap)
+                    print("Xlimit:",xlimit)
             
             
             for i in range(self.all_plot_count):  ####x_limit of all plots are made reset if scale has changed from SCALED_SMAL
@@ -1649,7 +1659,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.refresh_plot()
             else:
                 self.canvas.resize(max_scalable_width,self.MplWidget.scrollArea.size().height()-self.mplwidget_height_offset)
-            self.printf_("Drawn_OUT_OF_range")
+            print("Drawn_OUT_OF_range")
             self.plotted_out_of_range=True
             self.width_during_scaling=max_scalable_width
         self.set_scrl_val=self.pt2px.transform((x_canvas_pos,0))[0]
@@ -1729,16 +1739,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.rubberBand1.show()
         
         '''
-        self.printf_("XMIN",self.CoordMin)
-        self.printf_("XMAX",self.CoordMax)
-        self.printf_("small_view_start_pt",small_view_start_pos)
-        self.printf_("small_view_end_pt",small_view_end_pt)'''
+        print("XMIN",self.CoordMin)
+        print("XMAX",self.CoordMax)
+        print("small_view_start_pt",small_view_start_pos)
+        print("small_view_end_pt",small_view_end_pt)'''
         '''
-        self.printf_("Scrl_val",s_v)
-        self.printf_("cv_start:",cv_start)
-        self.printf_("cv_end:",cv_end)
-        self.printf_("Xlim:",xmin,xmax)
-        self.printf_("canvas_Width",cw)'''
+        print("Scrl_val",s_v)
+        print("cv_start:",cv_start)
+        print("cv_end:",cv_end)
+        print("Xlim:",xmin,xmax)
+        print("canvas_Width",cw)'''
     
     #######################################DRAW##############################################
     
@@ -1788,7 +1798,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     ###############################MULTIPLIER#####################################
     
     def onMultiplierChanged(self):
-        self.printf_("Multiplier Change")
+        print("Multiplier Change")
         multiplier_index=self.multiplier_combo.currentIndex()
         multiplier=1/10**(multiplier_index)
         ch_name=self.CH_select_combo.currentText()
@@ -1817,7 +1827,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         main_ylim=self.main_ylim
         if self.conf.wave_volt_limit[0]!=None and bool_==False:
             self.main_ylim=self.conf.wave_volt_limit
-            self.printf_("self.conf.wave_volt_limit",self.conf.wave_volt_limit)
+            print("self.conf.wave_volt_limit",self.conf.wave_volt_limit)
         elif bool_==False:
             self.main_ylim=[-5500,5500]
         
@@ -1836,6 +1846,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 pass
         self.last_folder=self.conf.csv_dir[0]
         self.debug_=self.conf.debug_
+        
         
     def get_plot_opacity(self,bool_):
         plt_opacity=self.plot_opacity
@@ -1881,16 +1892,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for i in range (len(self.main_panel_widgets)):
             widget=self.main_panel_widgets[i]
             widget.resize(int(widget.size().width()*resize_multiplier[0]),int(widget.size().height()*resize_multiplier[1]))
-        self.printf_("zoomWin:",self.zoomsize,"About_win_size:",self.aboutwinsize)
+        print("zoomWin:",self.zoomsize,"About_win_size:",self.aboutwinsize)
     
-    def printf_(self,*args):
+    def stdouttofile(self):
         if self.debug_:
-            string=""
-            for i in range(len(args)):
-                string+=str(args[i])
-            print(string)
-    
-    
+            if path.isdir("log")==False:
+                mkdir("log")
+            self.log_file=open("log\\run.log",'a')
+            sys.stdout = self.log_file
+            print("###############################",datetime.now(),"##############################################",file=self.log_file)
+        else:
+            sys.stdout=self.original_stdout
+            
 app = QtWidgets.QApplication(sys.argv)
 app.setStyleSheet("""
     QMenu::item:selected
@@ -1909,17 +1922,3 @@ MainWindow = QtWidgets.QMainWindow()
 ui = Ui_MainWindow()
 ui.show()
 sys.exit(app.exec_())
-
-#repositioning plots cursor V
-
-#initial sizes to adapt with resolution
-
-
-####on multiplier change v_base , y[] and a rescale will be done on channel selection change the multiplier will also change 
-##rescale positioning has bug
-
-#update during file input and draw
-#during resize
-#during rescale x and y
-
-#rescalex thread check

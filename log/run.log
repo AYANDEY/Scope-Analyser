@@ -1,0 +1,81 @@
+############################### 2020-06-15 06:37:16.904843 ##############################################
+############################### 2020-06-15 07:00:12.287969 ##############################################
+Offset= 16 21
+self.main.conf.FFT_annotation_offset [20, 10]
+resize
+small Win resized
+shown_small
+Shown
+ScrollArea: 838   489
+Draw_evt
+ydiv 2000.0
+Draw_evt_on small
+R3
+R1_1_FFT
+Draw_evt
+CH1
+#ffff00
+[['CH1', '#ffff00', 'D:/MY DRIVE/OneDrive/workplace/projects/Scope_Analyser/pyfiles/csv_data/example_data.csv']]
+['#timebase=4000000000(ps)', '', '#voltbase=1000000(uV)', '#size=4064']
+T_base: 4.0 ms
+Vdial_val__changed
+rescaling_plot
+rescalling..
+SCALing_IN_RANGE
+
+Scaled_Width: 680
+Curr SCRL Width: 838
+SCALing_IN_RANGE:SMALL
+tval: 4.0 MTICKSPERPAGE: 25 tscale: 1000.0
+x_max 0.10000000000000002
+CH_cursor_combo_change
+small limit: 2e-05 0.10000000000000002
+CH_cursor_combo_change
+Draw_evt_on small
+FFT_DRAWN
+freq_per_div 1000.0
+y_per_div 20.0
+limoffsets: 2720.192164777038 4.494821741818818
+Draw_evt_on FFT_small
+Draw_evt
+Draw_evt_on small
+self.csv_dir ['D:/MY DRIVE/OneDrive/workplace/projects/Scope_Analyser/pyfiles/csv_data', True, None, 3, 'last_csv_directory='] D:/MY DRIVE/OneDrive/workplace/projects/Scope_Analyser/pyfiles/csv_data
+SAVE: self.mainwin_pos [399, 207, True, 0, 'main_window_position='] self.infwin_pos [248, 406, True, 1, 'info_window_position='] self.csv_dir ['D:/MY DRIVE/OneDrive/workplace/projects/Scope_Analyser/pyfiles/csv_data', True, None, 3, 'last_csv_directory=']
+############################### 2020-06-15 07:11:08.952765 ##############################################
+wave_volt_limit [-5500, 5500, True, 0, 'wave_volt_limit=']
+FFT_annotation_offset [20, 10, True, 12, 'FFT_annotation_offset=']
+wave_plot_opacity ['0.8', True]
+set_time_to_base_time ['True', True]
+set_to_volt_base ['True', True]
+FFT_line_opacity ['0.8', True]
+FFT_zoom_multiplier ['1', True]
+FFT_keep_annotations False
+FFT_keep_annotations False
+FFT_Max_points_to_show ['3', True]
+FFT_annotation_opacity ['0.8', True]
+Information_Window_Opacity ['0.8', True]
+Measurement_Window_Opacity ['0.8', True]
+zeroline_visible ['False', True]
+FFT_default_window ['boxcar', True]
+Information_Window_always_on_top ['True', True]
+zoomWin: [382, 220] About_win_size: [442, 215]
+self.conf.wave_volt_limit [-5500, 5500]
+############################### 2020-06-15 07:12:19.316304 ##############################################
+wave_volt_limit [-5500, 5500, True, 0, 'wave_volt_limit=']
+FFT_annotation_offset [20, 10, True, 12, 'FFT_annotation_offset=']
+wave_plot_opacity ['0.8', True]
+set_time_to_base_time ['True', True]
+set_to_volt_base ['True', True]
+FFT_line_opacity ['0.8', True]
+FFT_zoom_multiplier ['1', True]
+FFT_keep_annotations False
+FFT_keep_annotations False
+FFT_Max_points_to_show ['3', True]
+FFT_annotation_opacity ['0.8', True]
+Information_Window_Opacity ['0.8', True]
+Measurement_Window_Opacity ['0.8', True]
+zeroline_visible ['False', True]
+FFT_default_window ['boxcar', True]
+Information_Window_always_on_top ['True', True]
+zoomWin: [382, 220] About_win_size: [442, 215]
+self.conf.wave_volt_limit [-5500, 5500]

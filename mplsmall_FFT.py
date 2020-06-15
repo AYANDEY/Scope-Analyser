@@ -50,17 +50,17 @@ class mplsmall_FFT(QWidget):
     
     def resizeEvent(self,event):
         QWidget.resizeEvent(self, event)
-        self.main.printf_("small Win resized")
+        print("small Win resized")
         
     def showEvent(self, event):
         QWidget.showEvent(self, event)
-        self.main.printf_("shown_small")
+        print("shown_small")
         
     def On_Canvas_drawn(self,draw_event):
-        self.main.printf_("Draw_evt_on FFT_small")
+        print("Draw_evt_on FFT_small")
         
     def mouse_pressed(self, e):
-        self.main.printf_("pressed")
+        print("pressed")
 
     #######################################PLOT#################################################
 
@@ -89,7 +89,7 @@ class mplsmall_FFT(QWidget):
         self.plot_list[plot_num]=plot_
         self.line_list[plot_num]=plot_[0]
         self.axes.set_xlim(x_limit[0],x_limit[1])
-        self.main.printf_("small limit:",x_limit[0],x_limit[1])
+        print("small limit:",x_limit[0],x_limit[1])
         self.fft_zoomwin.edit_plot(plot_num,x_,y_,ch_color,x_limit)
     
     def change_color(self,lineno,col):
@@ -98,18 +98,18 @@ class mplsmall_FFT(QWidget):
         
     def mouse_pressed(self, e):
         if self.main.fftW.small_view_start_pos<e.x and  e.x<self.main.fftW.small_view_end_pos:
-            self.main.printf_("clk_inside")
+            print("clk_inside")
             self.click_pos=e.x
             self.Scroll_val_at_clicked=self.main.FFT_Widget.scrollArea.horizontalScrollBar().value()
             main_c_width=self.main.FFT_Widget.canvas.size().width()
             self.width_ratio=main_c_width/self.canvas.size().width()
             self.is_clicked=True
-            self.main.printf_("CLICKED_VAL:",self.Scroll_val_at_clicked)
+            print("CLICKED_VAL:",self.Scroll_val_at_clicked)
         elif e.x>self.main.fftW.CoordMin and e.x<self.main.fftW.CoordMax and self.main.fftW.rescalex_Out_ranged:
             self.canvas_width=self.canvas.size().width()
             self.click_pos=e.x
             self.green_clicked=True
-        self.main.printf_("pressed")
+        print("pressed")
     
     def mouse_released(self,e):
         self.is_clicked=False
@@ -126,7 +126,7 @@ class mplsmall_FFT(QWidget):
     
     def mouse_in_motion(self,e):
         if self.is_clicked==True:
-            self.main.printf_("CLICKED_VAL:",self.Scroll_val_at_clicked,"pos:",e.x,"change_in_pos:",(e.x-self.click_pos))
+            print("CLICKED_VAL:",self.Scroll_val_at_clicked,"pos:",e.x,"change_in_pos:",(e.x-self.click_pos))
             change_in_pos=(e.x-self.click_pos)*self.width_ratio
             self.main.FFT_Widget.scrollArea.horizontalScrollBar().setValue(self.Scroll_val_at_clicked+change_in_pos)
         elif self.green_clicked==True:
