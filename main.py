@@ -1900,6 +1900,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 mkdir("log")
             self.log_file=open("log\\run.log",'a')
             sys.stdout = self.log_file
+            sys.stderr=self.log_file
             print("###############################",datetime.now(),"##############################################",file=self.log_file)
         else:
             sys.stdout=self.original_stdout
