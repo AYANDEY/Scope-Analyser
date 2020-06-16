@@ -235,7 +235,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.currentChanged.connect(self.tabChanged)
         self.main_panel_width=0
         self.firstRun=True
-        #self.pushButton.clicked.connect(self.exmain.test_func)
+        self.pushButton.clicked.connect(self.exmain.test_func)
         self.conf.get_position()
 
     #########################################@EVENT HANDLING#################################################
@@ -297,11 +297,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         elif self.tabWidget.currentIndex()==1:
             w = self.FFT_Widget.scrollArea.size().width()
             h = self.FFT_Widget.scrollArea.size().height()
-        
-        
         self.resize_self(w,h)
         self.fftW.resize_self(self.shown_flag,w,h)
-
+        
     def resize_self(self,w,h):
         if self.shown_flag==True and self.plotted_in_range==True and self.rescalex_Extended_flag!=True:
             if w>self.width_during_scaling:
@@ -328,7 +326,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.mplsmall.canvas.resize(w,self.mplsmall_window_height)
             self.mplsmall_FFT.canvas.resize(w,self.mplsmall_window_height)#########fftw and the small of it resized on __init__
             print("R3")
-      
+        
+    
     def showEvent(self, event):
         QMainWindow.showEvent(self, event)
         QApplication.processEvents()
@@ -352,7 +351,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.default_canvas_height=h
             self.canvas.resize(w,h)
             self.fftW.canvas.resize(w,h)
-            print("ScrollArea:",w," ",h)
+            #print("ScrollArea:",w," ",h)
             self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
             self.mplsmall_FFT.canvas.resize(w,self.mplwidget_height_offset)
         elif self.Window_minimised==True:
@@ -1450,7 +1449,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     
                     
                     self.plot_axes.yaxis.set_minor_locator(AutoMinorLocator(5))
-                    self.mplsmall.edit_plot(ch_match_indx,self.x_scale[ch_match_indx],y_scale,self.ch_name_col_list[ch_match_indx][1],xlimit)
+                    self.mplsmall.edit_plot(ch_match_indx,self.x_scale[ch_match_indx],y_scale,self.ch_name_col_list[ch_match_indx][1],self.x_limit)
                     self.y_scale[ch_match_indx]=y_scale
                     self.replotting=0
                     #self.setProgress(75,True)
@@ -1756,7 +1755,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def refresh_plot(self):
         if hasattr(self, "redraw")==True:
             if self.redraw.is_alive():
-                self.redraw.cancel()
+                self.redraw.stop()
 
         
         self.redraw=threading.Thread(target=self.canvas.draw_idle)

@@ -12,7 +12,6 @@ class exmain(object):
         super(exmain,self).__init__()
         self.main=parent
         self.MousePress_Event_handler=self.main.canvas.mpl_connect('button_press_event', self.onMousePress)
-        
         self.picked_=False
         self.anim_run=False
         self.define_Cursors_rb()
@@ -686,3 +685,8 @@ class exmain(object):
         self.aboutwin.show()
         print("show_about")
         
+    def test_func(self):
+        print(self.main.mplsmall.canvas.size())
+        print(self.main.MplWidget.scrollArea.size())
+        print("Small_win_limit",self.main.mplsmall.axes.get_xlim())
+        print("MAIN_win_limit",self.main.plot_axes.get_xlim())

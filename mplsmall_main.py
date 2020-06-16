@@ -64,7 +64,6 @@ class mplsmall_main(QWidget):
             self.canvas_width=self.canvas.size().width()
             self.click_pos=e.x
             self.green_clicked=True
-        
     
     def mouse_released(self,e):
         self.is_clicked=False
