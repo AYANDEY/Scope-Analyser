@@ -305,27 +305,27 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         if self.shown_flag==True and self.plotted_in_range==True and self.rescalex_Extended_flag!=True:
             if w>self.width_during_scaling:
                 self.canvas.resize(w,(h-self.mplwidget_height_offset))
-                self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
+                self.mplsmall.canvas.resize(w,self.mplsmall_window_height)
                 print("R1")
             else:
                 #self.canvas.resize(self.canvas.size().width(),(h-self.mplwidget_height_offset))
-                self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
+                self.mplsmall.canvas.resize(w,self.mplsmall_window_height)
                 print("R1E")
         elif self.rescalex_Extended_flag==True:
             self.rubberBand_reds_notDrawn=True
             if w>self.width_during_scaling:
                 self.canvas.resize(w,(h-self.mplwidget_height_offset))
-                self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
+                self.mplsmall.canvas.resize(w,self.mplsmall_window_height)
                 print("R2_1")
             else:
                 self.canvas.resize(self.canvas.size().width(),(h-self.mplwidget_height_offset))
-                self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
+                self.mplsmall.canvas.resize(w,self.mplsmall_window_height)
                 print("R2_2")
         elif self.shown_flag==True:##INIT
             self.canvas.resize(w,(h-self.mplwidget_height_offset))
             self.fftW.canvas.resize(w,h-self.mplwidget_height_offset)
-            self.mplsmall.canvas.resize(w,self.mplwidget_height_offset)
-            self.mplsmall_FFT.canvas.resize(w,self.mplwidget_height_offset)#########fftw and the small of it resized on __init__
+            self.mplsmall.canvas.resize(w,self.mplsmall_window_height)
+            self.mplsmall_FFT.canvas.resize(w,self.mplsmall_window_height)#########fftw and the small of it resized on __init__
             print("R3")
       
     def showEvent(self, event):
@@ -1721,8 +1721,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.rubberBand_red.hide()
             self.rubberBand_red1.hide()
         elif self.plotted_out_of_range and self.rubberBand_reds_notDrawn:
-            self.rubberBand_red.setGeometry(QRect(QPoint(0,0),QPoint(int(self.CoordMin),self.mplwidget_height_offset)))
-            self.rubberBand_red1.setGeometry(QRect(QPoint(int(self.CoordMax),0),QPoint(small_canvas_width,self.mplwidget_height_offset)))
+            self.rubberBand_red.setGeometry(QRect(QPoint(0,0),QPoint(int(self.CoordMin),self.mplsmall_window_height)))
+            self.rubberBand_red1.setGeometry(QRect(QPoint(int(self.CoordMax),0),QPoint(small_canvas_width,self.mplsmall_window_height)))
             self.rubberBand_red.show()
             self.rubberBand_red1.show()
             self.rubberBand_reds_notDrawn=False
@@ -1732,8 +1732,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.rubberBand.show()
             self.rubberBand1.show()
         
-        self.rubberBand.setGeometry(QRect(QPoint(int(self.CoordMin),0),QPoint(int(self.small_view_start_pos),self.mplwidget_height_offset)))
-        self.rubberBand1.setGeometry(QRect(QPoint(int(self.small_view_end_pos),0),QPoint(int(self.CoordMax),self.mplwidget_height_offset)))
+        self.rubberBand.setGeometry(QRect(QPoint(int(self.CoordMin),0),QPoint(int(self.small_view_start_pos),self.mplsmall_window_height)))
+        self.rubberBand1.setGeometry(QRect(QPoint(int(self.small_view_end_pos),0),QPoint(int(self.CoordMax),self.mplsmall_window_height)))
         
         self.rubberBand.show()
         self.rubberBand1.show()
@@ -1871,6 +1871,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.default_canvas_width=int(837*resize_multiplier[0])
         self.resize(int(1012*resize_multiplier[0]),int(627*resize_multiplier[1]))
         self.mplwidget_height_offset=int(24*resize_multiplier[1])
+        self.mplwidget_FFT_height_offset=int(30*resize_multiplier[1])
         self.mplsmall_window_height=int(60*resize_multiplier[1])
         
         

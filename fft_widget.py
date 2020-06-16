@@ -182,21 +182,21 @@ class FFT_handler(object):
         
         if shown_flag==True and self.rescalex_Extended_bool==False:
             if w>self.last_width:
-                self.canvas.resize(w,h-30)
-                self.fftsmall.canvas.resize(w,60)
+                self.canvas.resize(w,h-self.main.mplwidget_FFT_height_offset)
+                self.fftsmall.canvas.resize(w,self.main.mplsmall_window_height)
                 print("R1_1_FFT")
             else:
-                self.canvas.resize(self.canvas.size().width(),(h-24))
-                self.fftsmall.canvas.resize(w,60)
+                self.canvas.resize(self.canvas.size().width(),(h-self.main.mplwidget_FFT_height_offset))
+                self.fftsmall.canvas.resize(w,self.main.mplsmall_window_height)
                 print("R1_2_FFT")
         elif self.rescalex_Extended_bool==True:
             if w>self.last_width:
-                self.canvas.resize(w,h-30)
-                self.fftsmall.canvas.resize(w,60)
+                self.canvas.resize(w,h-self.main.mplwidget_FFT_height_offset)
+                self.fftsmall.canvas.resize(w,self.main.mplsmall_window_height)
                 print("R2_1_FFT")
             else:
-                self.canvas.resize(self.canvas.size().width(),(h-30))
-                self.fftsmall.canvas.resize(w,60)
+                self.canvas.resize(self.canvas.size().width(),(h-self.main.mplwidget_FFT_height_offset))
+                self.fftsmall.canvas.resize(w,self.main.mplsmall_window_height)
                 print("R2_2_FFT")
     
     def on_pick(self,e):
