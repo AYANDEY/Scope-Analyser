@@ -53,18 +53,18 @@ class mplsmall_main(QWidget):
    
     def mouse_pressed(self, e):
         if self.main.small_view_start_pos<e.x and  e.x<self.main.small_view_end_pos:
-            print("clk_inside")
+            #print("clk_inside")
             self.click_pos=e.x
             self.Scroll_val_at_clicked=self.main.MplWidget.scrollArea.horizontalScrollBar().value()
             main_c_width=self.main.MplWidget.canvas.size().width()
             self.width_ratio=main_c_width/self.canvas.size().width()
             self.is_clicked=True
-            print("CLICKED_VAL:",self.Scroll_val_at_clicked)
+            #print("CLICKED_VAL:",self.Scroll_val_at_clicked)
         elif e.x>self.main.CoordMin and e.x<self.main.CoordMax and self.main.plotted_out_of_range:
             self.canvas_width=self.canvas.size().width()
             self.click_pos=e.x
             self.green_clicked=True
-        print("pressed")
+        
     
     def mouse_released(self,e):
         self.is_clicked=False
@@ -81,7 +81,7 @@ class mplsmall_main(QWidget):
     
     def mouse_in_motion(self,e):
         if self.is_clicked==True:
-            print("CLICKED_VAL:",self.Scroll_val_at_clicked,"pos:",e.x,"change_in_pos:",(e.x-self.click_pos))
+            #print("CLICKED_VAL:",self.Scroll_val_at_clicked,"pos:",e.x,"change_in_pos:",(e.x-self.click_pos))
             change_in_pos=(e.x-self.click_pos)*self.width_ratio
             self.main.MplWidget.scrollArea.horizontalScrollBar().setValue(self.Scroll_val_at_clicked+change_in_pos)
         elif self.green_clicked==True:
@@ -118,7 +118,7 @@ class mplsmall_main(QWidget):
             self.axes.set_xlim(x_limit[0],x_limit[1])
         else:
             self.axes_list[plot_num].set_xlim(self.axes.get_xlim())
-        print("small limit:",x_limit[0],x_limit[1])
+        #print("small limit:",x_limit[0],x_limit[1])
         self.plot_list[plot_num]=plot_
         self.line_list[plot_num]=plot_[0]
         

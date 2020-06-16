@@ -298,6 +298,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             w = self.FFT_Widget.scrollArea.size().width()
             h = self.FFT_Widget.scrollArea.size().height()
         
+        
         self.resize_self(w,h)
         self.fftW.resize_self(self.shown_flag,w,h)
 
@@ -1846,8 +1847,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 pass
         self.last_folder=self.conf.csv_dir[0]
         self.debug_=self.conf.debug_
-        
-        
+    
     def get_plot_opacity(self,bool_):
         plt_opacity=self.plot_opacity
         changed_opacity=False
@@ -1872,7 +1872,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.resize(int(1012*resize_multiplier[0]),int(627*resize_multiplier[1]))
         self.mplwidget_height_offset=int(24*resize_multiplier[1])
         self.mplwidget_FFT_height_offset=int(30*resize_multiplier[1])
-        self.mplsmall_window_height=int(60*resize_multiplier[1])
+        self.mplsmall_window_height=60
         
         
         self.main_panel_widgets=[self.main_panel_frame,self.CH_select_combo,self.multiplier_combo,self.CH_enable_sw,self.zero_line_enabled_sw,
