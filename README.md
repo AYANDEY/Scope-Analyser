@@ -14,4 +14,4 @@ and the 2nd row "#voltbase=1000000(uV)" indicates the voltage division to which 
 
 The initial configuration can be set up by the "self.config" file and the position of windows is saved in "self.pos" file
 
-Check self.config file for the initial configuration.. "self.config" is not added in the Win installer
+Check "self.config" file for the initial configuration.. "self.config" is not added in the Win installer
