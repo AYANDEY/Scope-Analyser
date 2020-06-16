@@ -13,3 +13,5 @@ where the 1st row "#timebase=4000000000(ps)" indicates the timescale to which th
 and the 2nd row "#voltbase=1000000(uV)" indicates the voltage division to which the plot may be initialy scaled to..
 
 The initial configuration can be set up by the "self.config" file and the position of windows is saved in "self.pos" file
+
+Check "self.config" file for the initial configuration.. "self.config" is not added in the Win installer
